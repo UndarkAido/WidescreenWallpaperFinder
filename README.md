@@ -1,6 +1,8 @@
 # WidescreenWallpaperFinder
 Userscript to filter images on a page by a minimum width
 
+Press `F` to filter images and `C` to open the config menu.
+
 Currently supports:
 * [PidgiWiki](pidgi.net)
 * [Wowpedia](wow.gamepedia.com)
