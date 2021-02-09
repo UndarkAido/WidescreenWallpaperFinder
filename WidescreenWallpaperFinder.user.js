@@ -19,11 +19,38 @@
 // @include      https://www.deviantart.com/*
 // @grant        none
 // @require http://code.jquery.com/jquery-3.5.1.min.js
+// @require            https://openuserjs.org/src/libs/sizzle/GM_config.js
+// @grant              GM_getValue
+// @grant              GM_setValue
 // ==/UserScript==
-/* globals jQuery, $, waitForKeyElements */
+/* globals jQuery, $, waitForKeyElements, GM_config */
 
-const MINWIDTH = 3440
-const DEVIANTARTTIMEOUT = 1000;
+// Create the title link
+var title = document.createElement('a');
+title.textContent = 'Widescreen Wallpaper Finder';
+title.href = 'https://github.com/UndarkAido/WidescreenWallpaperFinder';
+
+GM_config.init(
+    {
+        'id': 'WidescreenWallpaperFinder', // The id used for this instance of GM_config
+        'title': title, // Panel Title
+        'fields': // Fields object
+        {
+            'MINWIDTH': // This is the id of the field
+            {
+                'label': 'Minimum Width', // Appears next to field
+                'type': 'int', // Makes this setting a text field
+                'default': 3440 // Default value if user doesn't change it
+            },
+            'DAINTERVAL': // This is the id of the field
+            {
+                'label': 'Deviantart Request Interval', // Appears next to field
+                'type': 'int', // Makes this setting a text field
+                'default': 1000 // Default value if user doesn't change it
+            }
+        }
+    }
+);
 
 console.log(window.location.hostname);
 console.log("YYY");
@@ -39,14 +66,20 @@ let isWikimediaCommons =	window.location.hostname.includes("commons.wikimedia.or
 let isDeviantArt =			window.location.hostname.includes("deviantart.com")					// ⚠ Will result in 403s
 
 function KeyCheck(e){
-    //alert(e.keyCode);
-    if(e.keyCode == 70){
-        hideythingamabob(3440);
+    switch(String.fromCharCode(e.keyCode)) {
+        case 'F':
+            hideythingamabob();
+            break;
+        case 'C':
+            GM_config.open();
+            break;
+        default:
+            // Do nothing
     }
 }
 window.addEventListener('keydown', KeyCheck, true);
 
-function hideythingamabob(minWidth){
+function hideythingamabob(){
     if (isPidgiWiki || isWowWiki || isWikimediaCommons){
         $(".gallerytext").each(function() {
             let width = parseInt(
@@ -54,13 +87,13 @@ function hideythingamabob(minWidth){
                 ? $(this).text().split("\n")[2].split(" ")[0].replace(/\,/g,'')
                 : $(this).text().split(/\r?\n/)[4].split(' ')[0].replace(/,/g, '')
             )
-            if(width < minWidth){
+            if(width < GM_config.get('MINWIDTH')){
                 $(this).parent().parent().remove();
             }
         });
     }else if(isAlphaCoders){
         $(".boxcaption span:first-child span:first-child").each(function() {
-            if(parseInt($(this).text().split("x")[0]) < minWidth){
+            if(parseInt($(this).text().split("x")[0]) < GM_config.get('MINWIDTH')){
                 $(this).parent().parent().parent().parent().remove();
             }
         });
@@ -68,19 +101,19 @@ function hideythingamabob(minWidth){
         alert("RIP tVGG")
     }else if(isActivisionPress){
         $(".press__grid__item").each(function() {
-            if($(this).find("span")[0].innerText.split(" ")[1] < minWidth){
+            if($(this).find("span")[0].innerText.split(" ")[1] < GM_config.get('MINWIDTH')){
                 $(this).remove();
             }
         });
     }else if(isBlizzardPress){
         $(".imagingThumb").each(function() {
-            if($(this).attr("data-origw") < minWidth){
+            if($(this).attr("data-origw") < GM_config.get('MINWIDTH')){
                 $(this).parent().parent().parent().remove();
             }
         });
     }else if(isPexels){
         $(".photo-item__img").each(function() {
-            if($(this).attr("data-image-width") < minWidth){
+            if($(this).attr("data-image-width") < GM_config.get('MINWIDTH')){
                 $(this).parent().parent().parent().remove();
             }
         });
@@ -94,14 +127,14 @@ function hideythingamabob(minWidth){
             setTimeout(function(){
                 //console.log(a.href)
                 $('<div>').load(a.href,function(response,status,xhr){
-                    if($(this).find("._2yX6g").length < 1 || parseInt($(this).find("._2yX6g")[0].innerText.split("x",1)[0]) < minWidth || $(this).find("a[data-hook='download_button']").length < 1){
+                    if($(this).find("._2yX6g").length < 1 || parseInt($(this).find("._2yX6g")[0].innerText.split("x",1)[0]) < GM_config.get('MINWIDTH') || $(this).find("a[data-hook='download_button']").length < 1){
                         root.remove();
                     }else{
                         //root.append($(this).find("a[data-hook='download_button']")[0])
                         a.href = $(this).find("a[data-hook='download_button']")[0].href;
                     }
                 });
-            }, i*DEVIANTARTTIMEOUT);
+            }, i*GM_config.get('DAINTERVAL'));
         });
     }
 }
