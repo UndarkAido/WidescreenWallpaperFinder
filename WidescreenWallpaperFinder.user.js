@@ -18,7 +18,6 @@
 // @include      https://commons.wikimedia.org/*
 // @include      https://www.deviantart.com/*
 // @grant        none
-// @xrequire http://code.jquery.com/jquery-3.6.0.min.js
 // @require            https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant              GM_getValue
 // @grant              GM_setValue
