@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Widescreen Wallpaper Finder
 // @namespace    http://theundarkpixel.com/
-// @version      1.0
+// @version      1.1
 // @description  Filter images on a page by a minimum width
 // @author       UndarkAido
 // @source       https://github.com/UndarkAido/WidescreenWallpaperFinder
@@ -9,7 +9,7 @@
 // @downloadURL  https://raw.githubusercontent.com/UndarkAido/WidescreenWallpaperFinder/master/WidescreenWallpaperFinder.user.js
 // @supportURL   https://github.com/UndarkAido/WidescreenWallpaperFinder/issues
 // @include      https://www.pidgi.net/*
-// @include      https://wow.gamepedia.com/*
+// @include      https://wowpedia.fandom.com/*
 // @include      https://wall.alphacoders.com/*
 // @include      http://www.thevideogamegallery.com/*
 // @include      https://press.activision.com/*
@@ -18,12 +18,11 @@
 // @include      https://commons.wikimedia.org/*
 // @include      https://www.deviantart.com/*
 // @grant        none
-// @require http://code.jquery.com/jquery-3.5.1.min.js
 // @require            https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant              GM_getValue
 // @grant              GM_setValue
 // ==/UserScript==
-/* globals jQuery, $, waitForKeyElements, GM_config */
+/* globals $, waitForKeyElements, GM_config */
 
 // Create the title link
 var title = document.createElement('a');
@@ -52,38 +51,54 @@ GM_config.init(
     }
 );
 
-console.log(window.location.hostname);
-console.log("YYY");
+let host = window.location.hostname;
+console.log(host);
 
-let isPidgiWiki =			window.location.hostname.includes("pidgi.net")						// 🔗 https://www.pidgi.net/wiki/index.php?title=Special:NewFiles&limit=5000
-let isWowWiki =				window.location.hostname.includes("wow.gamepedia.com")				// 🔗 https://wow.gamepedia.com/Special:NewFiles?limit=500
-let isAlphaCoders =			window.location.hostname.includes("https://wall.alphacoders.com")
-let isTheVideoGameGallery =	window.location.hostname.includes("thevideogamegallery.com")		// ⚰️ RIP
-let isActivisionPress =		window.location.hostname.includes("press.activision.com")
-let isBlizzardPress =		window.location.hostname.includes("blizzard.gamespress.com")
-let isPexels =				window.location.hostname.includes("pexels.com")
-let isWikimediaCommons =	window.location.hostname.includes("commons.wikimedia.org")
-let isDeviantArt =			window.location.hostname.includes("deviantart.com")					// ⚠ Will result in 403s
+let isPidgiWiki =			host.includes("pidgi.net");						// 🔗 https://www.pidgi.net/wiki/index.php?title=Special:NewFiles&limit=5000
+let isWowpedia =			host.includes("wowpedia.fandom.com");				// 🔗 https://wow.gamepedia.com/Special:NewFiles?limit=500
+let isAlphaCoders =			host.includes("https://wall.alphacoders.com");
+let isTheVideoGameGallery =	host.includes("thevideogamegallery.com");		// ⚰️ RIP
+let isActivisionPress =		host.includes("press.activision.com");
+let isBlizzardPress =		host.includes("blizzard.gamespress.com");
+let isPexels =				host.includes("pexels.com");
+let isWikimediaCommons =	host.includes("commons.wikimedia.org");
+let isDeviantArt =			host.includes("deviantart.com");				// ⚠ Will result in 403s
 
-function KeyCheck(e){
+var contentIndex = 0;
+var script = document.createElement('script');
+script.src = 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js';
+script.type = 'text/javascript';
+document.getElementsByTagName('head')[0].appendChild(script);
+script.onload = function() {
+    let jQuery_360 = $.noConflict(true);
+    console.log("$ calls: " + $.fn.jquery + ", jQuery_360 calls: " + jQuery_360.fn.jquery);
+    window.addEventListener('keydown', (e) => KeyCheck(e, jQuery_360), true);
+}
+
+function KeyCheck(e, $){
     switch(String.fromCharCode(e.keyCode)) {
-        case 'F':
-            hideythingamabob();
-            break;
         case 'C':
             GM_config.open();
+            break;
+        case 'F':
+            hidestuff($);
+            break;
+        case 'L':
+            loadmore($);
             break;
         default:
             // Do nothing
     }
 }
-window.addEventListener('keydown', KeyCheck, true);
 
-function hideythingamabob(){
-    if (isPidgiWiki || isWowWiki || isWikimediaCommons){
+function hidestuff($){
+    if (isPidgiWiki || isWowpedia || isWikimediaCommons){
         $(".gallerytext").each(function() {
+            console.log($(this).text());
+            console.log($(this).text().split(/\r?\n/));
+            console.log($(this).text().split(/\r?\n/)[4]);
             let width = parseInt(
-                isWikimediaCommons
+                isWikimediaCommons | isWowpedia
                 ? $(this).text().split("\n")[2].split(" ")[0].replace(/\,/g,'')
                 : $(this).text().split(/\r?\n/)[4].split(' ')[0].replace(/,/g, '')
             )
@@ -136,5 +151,36 @@ function hideythingamabob(){
                 });
             }, i*GM_config.get('DAINTERVAL'));
         });
+    }
+}
+
+function loadmore($){
+    if(isBlizzardPress){
+        if($(".morelink:visible").length > 0){
+            $(".morelink:visible").each(function() {
+                this.click();
+                function check() {
+                    if($(".morelink.butLoading:visible").length > 0) {
+                        return setTimeout(check, 100);
+                    }
+                    loadmore($);
+                }
+                check();
+            });
+        }else{
+            let i = 0;
+            $(".Expandable-caretOpen").each(function() {
+                let x = this;
+                setTimeout(function(){
+                    x.click()
+                },i++*100);
+            });
+            $(".tn-more").each(function() {
+                let x = this;
+                setTimeout(function(){
+                    x.click()
+                },i++*100);
+            });
+        }
     }
 }

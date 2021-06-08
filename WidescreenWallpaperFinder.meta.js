@@ -9,7 +9,7 @@
 // @downloadURL  https://raw.githubusercontent.com/UndarkAido/WidescreenWallpaperFinder/master/WidescreenWallpaperFinder.user.js
 // @supportURL   https://github.com/UndarkAido/WidescreenWallpaperFinder/issues
 // @include      https://www.pidgi.net/*
-// @include      https://wow.gamepedia.com/*
+// @include      https://wowpedia.fandom.com/*
 // @include      https://wall.alphacoders.com/*
 // @include      http://www.thevideogamegallery.com/*
 // @include      https://press.activision.com/*
@@ -18,7 +18,6 @@
 // @include      https://commons.wikimedia.org/*
 // @include      https://www.deviantart.com/*
 // @grant        none
-// @require http://code.jquery.com/jquery-3.5.1.min.js
 // @require            https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant              GM_getValue
 // @grant              GM_setValue
